@@ -1,0 +1,9 @@
+ROOT0-DLW-CHAIN-v1
+index : 1431
+slug  : the-logit-lens
+seal  : e2dd8da3cd9bc731ffee76c4ea47176df485b3179c10e83b9b68fe4e2ec71752
+prev  : 5cbf511193a0782e59acd13458cd21f3193bebee46cb3a76c2e467e873ab6441
+link  : 4f324bf104f0cdce1039b1f1eca7a9d61fa8121fee8f3bcfd93b855a04452bed
+head  : 4f324bf104f0cdce1039b1f1eca7a9d61fa8121fee8f3bcfd93b855a04452bed
+
+— the tether: link = sha256(index|slug|seal|prev). the chain head commits to the whole corpus.
