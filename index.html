@@ -210,7 +210,7 @@ function render(txt){
  // convergence crumb: rank of the FINAL top token at each layer
  var conv=[]; for(li=0;li<NL;li++)conv.push(rankOf(r.lens[li],finId));
  var finTok=topk(r.final,1)[0][0]; finTok=finTok===' '?'␣':(finTok==='\n'?'⏎':finTok);
- document.getElementById('conv').innerHTML='<b>convergence:</b> the final answer "'+finTok+'" sits at rank '+conv.join(' → ')+' across the 4 layers → 1 (it surfaces with depth).';
+ document.getElementById('conv').innerHTML='<b>convergence:</b> the final answer "'+finTok+'" sits at rank '+conv.join(' → ')+' across the 4 layers (rank 1 = the model’s own top guess).';
  drawConv(r, finId);
 }
 function drawConv(r,finId){
@@ -241,7 +241,7 @@ document.getElementById('gen').addEventListener('click',function(){
   // sample from the distribution (temperature 0.8)
   var T=0.8, zz=new Float32Array(V),i; for(i=0;i<V;i++)zz[i]=z[i]/T; var pp=softmax(zz), rnd=Math.random(),c=0,pick=V-1;
   for(i=0;i<V;i++){c+=pp[i]; if(rnd<=c){pick=i;break;}} t+=VOCAB[pick];}
- document.getElementById('prompt').value=t; crumb.textContent='(the real model wrote the tail — sampled T=0.8)'; render(t);
+ document.getElementById('prompt').value=t; crumb.textContent='(the real model generated the tail — sampled T=0.8)'; render(t);
 });
 render(document.getElementById('prompt').value);
 
@@ -258,7 +258,7 @@ var LIN=[
 // ---- expansion ----
 var EXP=[
  ['THE TUNED LENS','Belrose, Furman, Smith et al. · 2023','de-bias the naive lens: learn a per-layer affine A_ℓh+b_ℓ before unembedding. <em>Lower, smoother, more faithful</em> — proof the raw logit lens is biased. Built here as [[the-tuning-glass]].'],
- ['DoLa','Chuang, Xie, Luo et al. · 2023','Decoding by Contrasting Layers: subtract an early layer’s logits from a late layer’s to <em>amplify what the depth added</em> — cuts hallucination, decoding-time, no retraining.'],
+ ['DoLa','Chuang, Xie, Luo et al. · 2023','Decoding by Contrasting Layers: contrast the final layer’s next-token distribution against an earlier (“premature”) layer’s to <em>amplify what the depth added</em> — cuts hallucination, decoding-time, no retraining.'],
  ['THE FUTURE LENS','Pal, Sun, Yuan et al. · 2023','can a single hidden state predict tokens <em>several steps ahead</em>? Often yes — the residual already carries more than the next token.'],
  ['PATCHSCOPES','Ghandeharioun, Caciularu et al. · 2024','the generalization: patch a hidden state into a <em>separate</em> inference and let the model verbalize it. The logit lens + future lens fall out as special cases — the lens becomes a whole family of decoders.'],
 ];
@@ -266,7 +266,7 @@ var EXP=[
  d.innerHTML='<b>'+c[0]+'</b><div class="cite">'+c[1]+'</div><div class="add">'+c[2]+'</div>'; el.appendChild(d);});})();
 
 document.getElementById('convtext').innerHTML=
- 'Strip the names and every one of these is the <b>same act</b>: <b>decode the residual stream</b>. They differ only in the <b>decoder</b> — the logit lens uses the model’s own unembedding (identity, biased); the tuned lens a learned affine (de-biased); DoLa a contrast of two layers; Patchscopes an entire second model. So the family <b>converges</b> to one statement: <i>a hidden state is a code, and a lens is a choice of reader.</i> And there is a second convergence you can watch above — the model’s OWN guess sharpens across depth: for "ROMEO:⏎" the intermediate top-1 guesses are <b>M, A, A</b> and the answer <b>W</b> only becomes top-1 at the final layer — but its RANK climbs the whole way (8 → 3 → 4 → 1), so it is <em>decodable</em> earlier than it is top-1. The gradual signal is the rank, not the top-1. Lineage pointed one lens at one layer; expansion multiplied the readers; convergence is the recognition that they were always reading the one stream, and that the top token was already decodable from that stream layers before the end — decodable, not yet computed. Honest to the wall: reading a code is not being the computation, and a 4-layer char model shows a coarse shadow of what a real one does — but the shadow is real, and it is the model’s own.';
+ 'Strip the names and every one of these is the <b>same act</b>: <b>decode the residual stream</b>. They differ only in the <b>decoder</b> — the logit lens uses the model’s own unembedding (identity, biased); the tuned lens a learned affine (de-biased); DoLa a contrast of two layers; Patchscopes a whole separate inference (of the same model). So the family <b>converges</b> to one statement: <i>a hidden state is a code, and a lens is a choice of reader.</i> And there is a second convergence you can watch above — the model’s OWN guess sharpens across depth: for "ROMEO:⏎" the intermediate top-1 guesses are <b>M, A, A</b> and the answer <b>W</b> only becomes top-1 at the final layer — but its RANK runs well ahead of its top-1 status (8 → 3 → 4 → 1 — improving overall, with a dip at layer 3), so the answer is <em>decodable</em> from the stream earlier than it is the top guess. The gradual signal is the rank, and it is not monotone. Lineage pointed one lens at one layer; expansion multiplied the readers; convergence is the recognition that they were always reading the one stream, and that the top token was already decodable from that stream layers before the end — decodable, not yet computed. Honest to the wall: reading a code is not being the computation, and a 4-layer char model shows a coarse shadow of what a real one does — but the shadow is real, and it is the model’s own.';
 } catch(e){ if(!/SELF-CHECK/.test(String(e))) fail('boot', e&&e.stack?e.stack:String(e)); }
 </script>
 </body></html>
